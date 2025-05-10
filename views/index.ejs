@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Diary</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Dearest Diary</h1>
+    <a href="/new">➕ Create New space</a>
+    <hr>
+    <% posts.forEach(post => { %>
+      <h2><a href="/post/<%= post.id %>"><%= post.title %></a></h2>
+      <p><%= post.content.substring(0, 100) %>...</p>
+      <hr>
+    <% }) %>
+  </div>
+</body>
+</html>

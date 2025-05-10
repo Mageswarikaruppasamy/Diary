@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= post.title %></title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1><%= post.title %></h1>
+    <p><%= post.content %></p>
+
+    <a href="/edit/<%= post.id %>"><button class="edit">Edit</button></a>
+    <br>
+    <form action="/delete/<%= post.id %>" method="POST" onsubmit="return confirm('Delete this content?');">
+    <button type="submit">Delete</button>
+    </form>
+
+    <br>
+    <a href="/">← Back</a>
+
+  </div>
+</body>
+</html>
