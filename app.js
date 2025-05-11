@@ -9,7 +9,7 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // MongoDB connection
-mongoose.connect('mongodb://127.0.0.1:27017/diaryDB', {
+mongoose.connect('mongodb+srv://mageswari:openthedoor@mage.ovcndim.mongodb.net/', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => console.log('✅ MongoDB connected'))
