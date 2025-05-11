@@ -9,15 +9,13 @@
     <h1><%= post.title %></h1>
     <p><%= post.content %></p>
 
-    <a href="/edit/<%= post.id %>"><button class="edit">Edit</button></a>
+    <a href="/edit/<%= post._id %>"><button class="edit">Edit</button></a>
     <br>
-    <form action="/delete/<%= post.id %>" method="POST" onsubmit="return confirm('Delete this content?');">
-    <button type="submit">Delete</button>
+    <form action="/delete/<%= post._id %>" method="POST" onsubmit="return confirm('Delete this content?');">
+      <button type="submit">Delete</button>
     </form>
-
     <br>
     <a href="/">← Back</a>
-
   </div>
 </body>
 </html>

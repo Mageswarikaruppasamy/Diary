@@ -10,7 +10,7 @@
     <a href="/new">➕ Create New space</a>
     <hr>
     <% posts.forEach(post => { %>
-      <h2><a href="/post/<%= post.id %>"><%= post.title %></a></h2>
+      <h2><a href="/post/<%= post._id %>"><%= post.title %></a></h2>
       <p><%= post.content.substring(0, 100) %>...</p>
       <hr>
     <% }) %>

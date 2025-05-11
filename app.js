@@ -1,36 +1,33 @@
 const express = require('express');
-const fs = require('fs');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const app = express();
-const port = 3000;
 
+// Middleware
 app.use(express.static('public'));
-
-
 app.set('view engine', 'ejs');
-app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Load posts from file
-const loadPosts = () => {
-  try {
-    const data = fs.readFileSync('posts.json');
-    return JSON.parse(data.toString());
-  } catch {
-    return [];
-  }
-};
+// MongoDB connection
+mongoose.connect('mongodb://127.0.0.1:27017/diaryDB', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => console.log('✅ MongoDB connected'))
+  .catch(err => console.log('❌ MongoDB connection error:', err));
 
-const savePosts = (posts) => {
-  fs.writeFileSync('posts.json', JSON.stringify(posts));
-};
-
-// Home page – List all posts
-app.get('/', (req, res) => {
-  const posts = loadPosts();
-  res.render('index', { posts });
+// Schema
+const postSchema = new mongoose.Schema({
+  title: String,
+  content: String
 });
 
+const Post = mongoose.model('Post', postSchema);
+
+// Home – List all posts
+app.get('/', async (req, res) => {
+  const posts = await Post.find({});
+  res.render('index', { posts });
+});
 
 // Form to create new post
 app.get('/new', (req, res) => {
@@ -38,22 +35,18 @@ app.get('/new', (req, res) => {
 });
 
 // Handle new post submission
-app.post('/new', (req, res) => {
-  const posts = loadPosts();
-  const newPost = {
-    id: Date.now().toString(),
+app.post('/new', async (req, res) => {
+  const newPost = new Post({
     title: req.body.title,
     content: req.body.content
-  };
-  posts.push(newPost);
-  savePosts(posts);
+  });
+  await newPost.save();
   res.redirect('/');
 });
 
 // View individual post
-app.get('/post/:id', (req, res) => {
-  const posts = loadPosts();
-  const post = posts.find(p => p.id == req.params.id);
+app.get('/post/:id', async (req, res) => {
+  const post = await Post.findById(req.params.id);
   if (post) {
     res.render('post', { post });
   } else {
@@ -62,40 +55,31 @@ app.get('/post/:id', (req, res) => {
 });
 
 // Form to edit post
-app.get('/edit/:id', (req, res) => {
-    const posts = loadPosts();
-    const post = posts.find(p => p.id === req.params.id);
-    if (post) {
-      res.render('edit', { post });
-    } else {
-      res.status(404).send('Post not found');
-    }
-  });
-  
-  // Handle edit form submission
-  app.post('/edit/:id', (req, res) => {
-    let posts = loadPosts();
-    const index = posts.findIndex(p => p.id === req.params.id);
-    if (index !== -1) {
-      posts[index].title = req.body.title;
-      posts[index].content = req.body.content;
-      savePosts(posts);
-      res.redirect('/post/' + req.params.id);
-    } else {
-      res.status(404).send('Post not found');
-    }
-  });
+app.get('/edit/:id', async (req, res) => {
+  const post = await Post.findById(req.params.id);
+  if (post) {
+    res.render('edit', { post });
+  } else {
+    res.status(404).send('Post not found');
+  }
+});
 
+// Handle edit submission
+app.post('/edit/:id', async (req, res) => {
+  await Post.findByIdAndUpdate(req.params.id, {
+    title: req.body.title,
+    content: req.body.content
+  });
+  res.redirect('/post/' + req.params.id);
+});
 
 // Delete a post
-app.post('/delete/:id', (req, res) => {
-    let posts = loadPosts();
-    posts = posts.filter(p => p.id !== req.params.id);
-    savePosts(posts);
-    res.redirect('/');
-  });
+app.post('/delete/:id', async (req, res) => {
+  await Post.findByIdAndDelete(req.params.id);
+  res.redirect('/');
+});
 
-
-  app.listen(process.env.PORT || 3000, '0.0.0.0', () => {
-    console.log(`Server running on port ${process.env.PORT || 3000}`);
-  });
+// Start server
+app.listen(process.env.PORT || 3000, '0.0.0.0', () => {
+  console.log(`🚀 Server running on port ${process.env.PORT || 3000}`);
+});
